@@ -38,7 +38,7 @@ public class MesProductVo implements Serializable {
     private String updateByName;
     private LocalDateTime updateTime;
     private List<ProductAttachmentVo> attachments;
-    public int getAttachmentCount() {
+    /*public int getAttachmentCount() {
         return attachmentIds == null || attachmentIds.isBlank() ? 0 : attachmentIds.split(",").length;
-    }
+    }*/
 }
