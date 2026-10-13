@@ -1,7 +1,8 @@
 # MES GitHub 同步
 
-仓库：`git@github.com:ytghdj/MES.git`，主分支：`main`。
+仓库：`https://github.com/ytghdj/MES.git`，主分支：`main`。
 前后端统一管理，在项目根目录执行以下操作。
+本机通过 GitHub CLI 授权使用 HTTPS 拉取和推送。
 
 ## 开始开发前更新
 
@@ -25,7 +26,9 @@ git push
 ## 在其他电脑获取项目
 
 ```powershell
-git clone git@github.com:ytghdj/MES.git
+gh auth login --hostname github.com --git-protocol https --web
+gh auth setup-git
+git clone https://github.com/ytghdj/MES.git
 ```
 
 依赖、构建产物、日志和本机配置不会上传。数据库密码通过环境变量

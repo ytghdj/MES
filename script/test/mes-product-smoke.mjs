@@ -12,7 +12,13 @@ const clientId = readFileSync('plus-ui/.env.development', 'utf8').match(/^VITE_A
 const password = process.env.MES_TEST_PASSWORD || 'MesAcceptance2026!';
 const checks = [];
 const prefix = `TEST-${Date.now().toString(36)}-`;
-const fixtureDir = 'ruoyi-modules/ruoyi-mes/target/acceptance-fixtures';
+const testReport = readFileSync('ruoyi-modules/ruoyi-mes/target/surefire-reports/TEST-org.dromara.mes.listener.ProductExcelTest.xml', 'utf8');
+const classpath = testReport.match(/<property name="java.class.path" value="([^"]+)"/)[1].replace(/&amp;/g, '&').replaceAll('\\', '/');
+writeFileSync('ruoyi-admin/target/mes-workbook.args', `--class-path\n"${classpath}"\n--source\n25\nscript/test/MesWorkbookFixtures.java\n`);
+const workbook = name => {
+  const output = execFileSync(process.env.MES_JAVA_BIN || 'D:/devsoftware/java/jdk25/bin/java.exe', ['@ruoyi-admin/target/mes-workbook.args', name], { encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 });
+  return Buffer.from(output.trim().split(/\r?\n/).at(-1), 'base64');
+};
 const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jK1sAAAAASUVORK5CYII=', 'base64');
 
 async function request(path, method = 'GET', body, token) {
@@ -104,24 +110,25 @@ assert.equal(item.attachmentCount, 0);
 assert.deepEqual(await fetch('http://127.0.0.1:9900/__fixture/stats').then(response => response.json()), beforeDetach);
 checks.push('file signature, uppercase extension, binding, preview/download bytes, authorization, limit and non-destructive detach');
 
-const imported = await success('/mes/product/importData', 'POST', fileBody(readFileSync(`${fixtureDir}/valid.xlsx`), 'valid.xlsx'), admin);
+const validWorkbook = workbook('valid.xlsx');
+const imported = await success('/mes/product/importData', 'POST', fileBody(validWorkbook, 'valid.xlsx'), admin);
 assert.equal(imported.importedCount, 1);
 assert.deepEqual(imported.errors, []);
 let workbookProduct = (await success('/mes/product/list?productCode=000001', 'GET', undefined, admin)).rows[0];
 assert.equal(workbookProduct.productCode, '000001');
 assert.equal(workbookProduct.drawingNo, '00002');
 assert.equal(workbookProduct.customerPartNo, '00003');
-const duplicate = await success('/mes/product/importData', 'POST', fileBody(readFileSync(`${fixtureDir}/valid.xlsx`), 'duplicate.xlsx'), admin);
+const duplicate = await success('/mes/product/importData', 'POST', fileBody(validWorkbook, 'duplicate.xlsx'), admin);
 assert.equal(duplicate.importedCount, 0);
 assert.ok(duplicate.errors.some(error => error.rowNumber === 2));
 for (const name of ['invalid.xlsx', 'wrong-header.xlsx', 'over-limit.xlsx']) {
-  const result = await success('/mes/product/importData', 'POST', fileBody(readFileSync(`${fixtureDir}/${name}`), name), admin);
+  const result = await success('/mes/product/importData', 'POST', fileBody(workbook(name), name), admin);
   assert.equal(result.importedCount, 0); assert.ok(result.errors.length);
 }
 assert.equal(count('A'), 0);
 checks.push('Excel leading zeros, duplicate rejection, row errors, header validation, max rows and zero partial writes');
 
-const importRace = request('/mes/product/importData', 'POST', fileBody(readFileSync(`${fixtureDir}/race.xlsx`), 'race.xlsx'), admin);
+const importRace = request('/mes/product/importData', 'POST', fileBody(workbook('race.xlsx'), 'race.xlsx'), admin);
 let active = false;
 for (let i = 0; i < 200; i++) {
   const activeCount = Number(sql(`SELECT COUNT(*) FROM information_schema.innodb_trx t JOIN information_schema.processlist p ON p.id=t.trx_mysql_thread_id WHERE p.db='${database}' AND t.trx_rows_modified>0`));

@@ -39,7 +39,7 @@ Backend tests use JUnit Jupiter and Mockito. Name classes `*Test`; add regressio
 
 ## Commit & Pull Request Guidelines
 
-History uses `fix`, `add`, and `update` prefixes, usually followed by Chinese descriptions. Keep commits focused. This MES project's remote is `git@github.com:ytghdj/MES.git` and its main branch is `main`. Pull updates with `git pull --ff-only` and push committed changes with `git push`. Project PRs target `main`; describe the problem, implementation rationale, and executed checks. Link relevant issues and include screenshots for UI changes.
+History uses `fix`, `add`, and `update` prefixes, usually followed by Chinese descriptions. Keep commits focused. This MES project's remote is `https://github.com/ytghdj/MES.git` and its main branch is `main`. Authenticate with GitHub CLI over HTTPS. Pull updates with `git pull --ff-only` and push committed changes with `git push`. Project PRs target `main`; describe the problem, implementation rationale, and executed checks. Link relevant issues and include screenshots for UI changes.
 
 ## Security & Configuration
 
