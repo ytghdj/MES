@@ -53,6 +53,7 @@ nbdist/
 
 .pnpm-store/
 logs/
+/AGENTS.md/
 
 application-local.yml
 application-ga.yml

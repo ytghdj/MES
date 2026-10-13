@@ -3,6 +3,8 @@ package org.dromara.mes.domain.vo;
 import io.github.linpeilie.annotations.AutoMapper;
 import lombok.Data;
 import org.dromara.mes.domain.MesProduct;
+import org.dromara.common.translation.annotation.Translation;
+import org.dromara.common.translation.constant.TransConstant;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,8 +30,12 @@ public class MesProductVo implements Serializable {
     private String attachmentIds;
     private Long version;
     private Long createBy;
+    @Translation(type = TransConstant.USER_ID_TO_NAME, mapper = "createBy")
+    private String createByName;
     private LocalDateTime createTime;
     private Long updateBy;
+    @Translation(type = TransConstant.USER_ID_TO_NAME, mapper = "updateBy")
+    private String updateByName;
     private LocalDateTime updateTime;
     private List<ProductAttachmentVo> attachments;
     public int getAttachmentCount() {
