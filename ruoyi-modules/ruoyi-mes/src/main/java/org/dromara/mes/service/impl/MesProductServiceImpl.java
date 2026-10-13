@@ -315,7 +315,8 @@ public class MesProductServiceImpl implements IMesProductService {
             throw new ServiceException("附件文件已不存在");
         }
         ResponseEntity<byte[]> response = ossService.download(ossId);
-        HttpHeaders headers = new HttpHeaders(response.getHeaders());
+        HttpHeaders headers = new HttpHeaders();
+        headers.addAll(response.getHeaders());
         headers.setContentType(MediaType.parseMediaType(contentType(file.getOriginalName())));
         headers.set("X-Content-Type-Options", "nosniff");
         if (preview) {

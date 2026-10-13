@@ -154,6 +154,22 @@ class MesProductServiceTest {
     }
 
     @Test
+    void previewPreservesBytesAndCopiesDownloadHeaders() {
+        MesProduct product = new MesProduct(); product.setAttachmentIds("10");
+        when(mapper.selectById(1L)).thenReturn(product);
+        var file = new org.dromara.system.domain.vo.SysOssVo();
+        file.setOriginalName("drawing.png");
+        when(oss.getById(10L)).thenReturn(file);
+        byte[] bytes = {1, 2, 3};
+        when(oss.download(10L)).thenReturn(org.springframework.http.ResponseEntity.ok()
+            .contentType(org.springframework.http.MediaType.IMAGE_PNG).header("Content-Disposition", "attachment").body(bytes));
+        var result = service.attachment(1L, 10L, true);
+        assertArrayEquals(bytes, result.getBody());
+        assertTrue(result.getHeaders().getContentDisposition().isInline());
+        assertEquals("nosniff", result.getHeaders().getFirst("X-Content-Type-Options"));
+    }
+
+    @Test
     void validatesActualFileSignaturesAndSizeBeforeUploading() {
         assertThrows(ServiceException.class, () -> service.uploadAttachment(new MockMultipartFile("file", "test.exe", "image/png", new byte[]{1})));
         assertThrows(ServiceException.class, () -> service.uploadAttachment(new MockMultipartFile("file", "test.pdf", "application/pdf", "not a PDF".getBytes(StandardCharsets.UTF_8))));

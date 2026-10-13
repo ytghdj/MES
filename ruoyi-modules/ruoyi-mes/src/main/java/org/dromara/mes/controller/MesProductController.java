@@ -16,6 +16,7 @@ import org.dromara.mes.domain.bo.MesProductBo;
 import org.dromara.mes.domain.bo.ProductStatusBo;
 import org.dromara.mes.domain.vo.*;
 import org.dromara.mes.service.IMesProductService;
+import org.dromara.mes.listener.ProductExcelTextHandler;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -83,7 +84,8 @@ public class MesProductController extends BaseController {
     @SaCheckPermission("mes:product:import")
     @PostMapping("/importTemplate")
     public void importTemplate(HttpServletResponse response) {
-        ExcelBuilder.of(List.<ProductExcelRow>of(), ProductExcelRow.class).sheetName("产品资料").toResponse(response);
+        ExcelBuilder.of(List.<ProductExcelRow>of(), ProductExcelRow.class).sheetName("产品资料")
+            .registerWriteHandler(new ProductExcelTextHandler()).toResponse(response);
     }
 
     @SaCheckPermission("mes:product:import")
